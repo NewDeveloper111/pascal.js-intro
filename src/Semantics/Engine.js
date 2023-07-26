@@ -3,6 +3,7 @@ import { Multiplication } from '../SyntaxAnalyzer/Tree/Multiplication';
 import { Subtraction } from '../SyntaxAnalyzer/Tree/Subtraction';
 import { Division } from '../SyntaxAnalyzer/Tree/Division';
 import { NumberConstant } from '../SyntaxAnalyzer/Tree/NumberConstant';
+import { Inversion } from '../SyntaxAnalyzer/Tree/Inversion';
 import { NumberVariable } from './Variables/NumberVariable';
 
 export class Engine
@@ -30,7 +31,7 @@ export class Engine
             {
                 let result = self.evaluateSimpleExpression(tree);
                 console.log(result.value);
-                self.results.push(result.value); // пишем в массив результатов
+                self.results.push(Number.parseInt(result.value)); // пишем в массив результатов
             }
         );
 
@@ -79,8 +80,14 @@ export class Engine
 
     evaluateMultiplier(expression)
     {
-        if (expression instanceof NumberConstant) {
-            return new NumberVariable(expression.symbol.value);
+        let expr = expression, minus = false;
+        if (expression instanceof Inversion) {
+            minus = true;
+            expr = expr.symbol;
+        }
+        if (expr instanceof NumberConstant) {
+            let num = expr.symbol.value;
+            return new NumberVariable(minus ? -num : num);
         } else {
             throw 'Number Constant expected.';
         }
