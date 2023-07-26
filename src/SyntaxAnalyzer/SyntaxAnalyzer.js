@@ -4,6 +4,7 @@ import { Addition } from './Tree/Addition';
 import { Subtraction } from './Tree/Subtraction';
 import { NumberConstant } from './Tree/NumberConstant';
 import { Inversion } from './Tree/Inversion';
+import { Expression } from './Tree/Expression';
 import { SymbolsCodes } from '../LexicalAnalyzer/SymbolsCodes';
 
 /**
@@ -113,9 +114,15 @@ export class SyntaxAnalyzer
             minus = !minus;
             this.nextSym();
         }
-        let integerConstant = this.symbol;
-        this.accept(SymbolsCodes.integerConst);
-        let integer = new NumberConstant(integerConstant);
+        let integer = null, integerConstant = this.symbol;
+        if (this.symbol !== null && this.symbol.symbolCode === SymbolsCodes.openBracket) {
+            this.nextSym();
+            integer = new Expression(this.scanExpression());
+            this.accept(SymbolsCodes.closedBracket);
+        } else {
+            this.accept(SymbolsCodes.integerConst);
+            integer = new NumberConstant(integerConstant);
+        }
         return minus ? new Inversion(integer) : integer;
     }
 };

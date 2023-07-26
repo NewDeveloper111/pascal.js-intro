@@ -4,6 +4,7 @@ import { Subtraction } from '../SyntaxAnalyzer/Tree/Subtraction';
 import { Division } from '../SyntaxAnalyzer/Tree/Division';
 import { NumberConstant } from '../SyntaxAnalyzer/Tree/NumberConstant';
 import { Inversion } from '../SyntaxAnalyzer/Tree/Inversion';
+import { Expression } from '../SyntaxAnalyzer/Tree/Expression';
 import { NumberVariable } from './Variables/NumberVariable';
 
 export class Engine
@@ -85,8 +86,9 @@ export class Engine
             minus = true;
             expr = expr.symbol;
         }
-        if (expr instanceof NumberConstant) {
-            let num = expr.symbol.value;
+        if (expr instanceof Expression || expr instanceof NumberConstant) {
+            let num = expr instanceof NumberConstant ? expr.symbol.value :
+                this.evaluateSimpleExpression(expr.symbol).value;
             return new NumberVariable(minus ? -num : num);
         } else {
             throw 'Number Constant expected.';
