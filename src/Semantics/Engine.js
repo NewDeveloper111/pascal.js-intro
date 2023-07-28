@@ -5,7 +5,9 @@ import { Division } from '../SyntaxAnalyzer/Tree/Division';
 import { NumberConstant } from '../SyntaxAnalyzer/Tree/NumberConstant';
 import { Inversion } from '../SyntaxAnalyzer/Tree/Inversion';
 import { Expression } from '../SyntaxAnalyzer/Tree/Expression';
+import { Assignation } from '../SyntaxAnalyzer/Tree/Assignation';
 import { NumberVariable } from './Variables/NumberVariable';
+import { IntegerConstant } from '../LexicalAnalyzer/Symbols/IntegerConstant';
 
 export class Engine
 {
@@ -20,6 +22,7 @@ export class Engine
     {
         this.trees = trees;
         this.results = [];
+        this.acc = {};
     }
 
     run()
@@ -30,8 +33,12 @@ export class Engine
 
             function(tree)
             {
-                let result = self.evaluateSimpleExpression(tree);
+                let result = self.evaluateSimpleExpression(tree instanceof Assignation ?
+                    tree.right : tree);
                 console.log(result.value);
+                if (tree instanceof Assignation) {
+                    self.acc[tree.left.value] = Number.parseInt(result.value);
+                }
                 self.results.push(Number.parseInt(result.value)); // пишем в массив результатов
             }
         );
@@ -87,8 +94,17 @@ export class Engine
             expr = expr.symbol;
         }
         if (expr instanceof Expression || expr instanceof NumberConstant) {
-            let num = expr instanceof NumberConstant ? expr.symbol.value :
-                this.evaluateSimpleExpression(expr.symbol).value;
+            let num = null;
+            if (expr instanceof Expression ) {
+                num = this.evaluateSimpleExpression(expr.symbol).value;
+            } else if (expr.symbol instanceof IntegerConstant) {
+                num = expr.symbol.value;
+            } else if (expr.symbol.value in this.acc) {
+                num = this.acc[expr.symbol.value];
+            } else {
+                throw '  Ошибка: переменная не инициализирована.\n' +
+                `Строка: ${expr.symbol.str}, столбец: ${expr.symbol.col}`;
+            }
             return new NumberVariable(minus ? -num : num);
         } else {
             throw 'Number Constant expected.';

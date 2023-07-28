@@ -11,6 +11,7 @@ export class LexicalAnalyzer
         this.fileIO = fileIO;
         this.char = ' ';
         this.currentWord = '';
+        this.pos = -1;
     }
 
     nextSym()
@@ -30,6 +31,7 @@ export class LexicalAnalyzer
 
         while (ws.exec(this.char) !== null) {
             this.char = this.fileIO.nextCh();
+            this.pos++;
         }
     }
 
@@ -46,24 +48,28 @@ export class LexicalAnalyzer
             while (/[\d.]/.exec(this.char) !== null) {
                 this.currentWord += this.char;
                 this.char = this.fileIO.nextCh();
+                this.pos++;
             }
 
             return new IntegerConstant(SymbolsCodes.integerConst, this.currentWord);
 
         } else if (/\w/i.exec(this.char) !== null) {
 
-            while (/\w/i.exec(this.char) !== null) {
-                this.currentWord += this.char;
+            while (/\w/ig.exec(this.char) !== null && this.char !== null) {
+                this.currentWord += this.char;                
                 this.char = this.fileIO.nextCh();
+                this.pos++;                
             }
-
-            return this.getSymbol(SymbolsCodes.identifier);
+            let sym = this.getSymbol(SymbolsCodes.identifier, this.currentWord);
+            sym.col = this.pos;
+            return sym;
 
         } else if (/\n/.exec(this.char) !== null) {
             this.char = this.fileIO.nextCh();
+            this.pos = 0;
             return this.getSymbol(SymbolsCodes.endOfLine, this.currentWord);
         } else {
-
+            this.pos++;
             switch (this.char) {
                 case '-':
                     this.char = this.fileIO.nextCh();

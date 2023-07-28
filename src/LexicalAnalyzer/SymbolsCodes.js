@@ -8,4 +8,5 @@ export const SymbolsCodes = {
     endOfLine: 'eol',
     openBracket: '(',
     closedBracket: ')',
+    equal: '='
 }

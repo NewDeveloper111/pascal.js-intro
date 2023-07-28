@@ -5,6 +5,7 @@ import { Subtraction } from './Tree/Subtraction';
 import { NumberConstant } from './Tree/NumberConstant';
 import { Inversion } from './Tree/Inversion';
 import { Expression } from './Tree/Expression';
+import { Assignation } from './Tree/Assignation';
 import { SymbolsCodes } from '../LexicalAnalyzer/SymbolsCodes';
 
 /**
@@ -18,11 +19,15 @@ export class SyntaxAnalyzer
         this.symbol = null;
         this.tree = null;
         this.trees = [];
+        this.accSym = [];
+        this.id = 0;
+        this.strNum = 1;
     }
 
     nextSym()
     {
-        this.symbol = this.lexicalAnalyzer.nextSym();
+        this.symbol = this.id < this.accSym.length ? this.accSym[this.id++] :
+            this.lexicalAnalyzer.nextSym();
     }
 
     accept(expectedSymbolCode)
@@ -42,17 +47,35 @@ export class SyntaxAnalyzer
         this.nextSym();
 
         while (this.symbol !== null) {
-            let expression = this.scanExpression();
+            let expression = this.scanResult();
             this.trees.push(expression);
             console.log(expression);
             // Последняя строка может не заканчиваться переносом на следующую строку.
             if (this.symbol !== null) {
                 this.accept(SymbolsCodes.endOfLine);
             }
-
+            this.id = 0;
+            this.accSym = [];      
+            this.strNum++;
         }
 
         return this.tree;
+    }
+    // Разбор выражения или разбор выражения с присваиванием
+    scanResult() {
+        if (this.symbol !== null && this.symbol.symbolCode === SymbolsCodes.identifier) {
+            this.id = 1;
+            this.accSym.push(this.symbol);
+            this.nextSym();
+            this.accSym.push(this.symbol);
+            if (this.symbol !== null && this.symbol.symbolCode === SymbolsCodes.equal) {
+                this.id = 2;
+                this.nextSym();
+                return new Assignation(this.accSym[1], this.accSym[0], this.scanExpression());
+            }
+            this.symbol = this.accSym[0];
+        }
+        return this.scanExpression();
     }
     // Разбор выражения
     scanExpression()
@@ -114,14 +137,19 @@ export class SyntaxAnalyzer
             minus = !minus;
             this.nextSym();
         }
-        let integer = null, integerConstant = this.symbol;
+        let integer = null, intOrVar = this.symbol;
         if (this.symbol !== null && this.symbol.symbolCode === SymbolsCodes.openBracket) {
             this.nextSym();
             integer = new Expression(this.scanExpression());
             this.accept(SymbolsCodes.closedBracket);
         } else {
-            this.accept(SymbolsCodes.integerConst);
-            integer = new NumberConstant(integerConstant);
+            if (intOrVar !== null && intOrVar.symbolCode === SymbolsCodes.identifier) {
+                intOrVar.str = this.strNum;
+                this.nextSym();
+            } else {
+                this.accept(SymbolsCodes.integerConst);
+            }            
+            integer = new NumberConstant(intOrVar);
         }
         return minus ? new Inversion(integer) : integer;
     }
