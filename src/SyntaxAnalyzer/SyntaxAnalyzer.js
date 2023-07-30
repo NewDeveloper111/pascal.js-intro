@@ -4,7 +4,6 @@ import { Addition } from './Tree/Addition';
 import { Subtraction } from './Tree/Subtraction';
 import { NumberConstant } from './Tree/NumberConstant';
 import { Inversion } from './Tree/Inversion';
-import { Expression } from './Tree/Expression';
 import { SymbolsCodes } from '../LexicalAnalyzer/SymbolsCodes';
 
 /**
@@ -115,10 +114,10 @@ export class SyntaxAnalyzer
             this.nextSym();
         }
         let integer = null, integerConstant = this.symbol;
-        if (this.symbol !== null && this.symbol.symbolCode === SymbolsCodes.openBracket) {
+        if (this.symbol !== null && this.symbol.symbolCode === SymbolsCodes.openParenthesis) {
             this.nextSym();
-            integer = new Expression(this.scanExpression());
-            this.accept(SymbolsCodes.closedBracket);
+            integer = this.scanExpression();
+            this.accept(SymbolsCodes.closedParenthesis);
         } else {
             this.accept(SymbolsCodes.integerConst);
             integer = new NumberConstant(integerConstant);

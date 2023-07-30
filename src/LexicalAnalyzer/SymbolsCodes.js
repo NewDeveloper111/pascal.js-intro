@@ -6,6 +6,6 @@ export const SymbolsCodes = {
     identifier: 'ident',
     integerConst: 'int',
     endOfLine: 'eol',
-    openBracket: '(',
-    closedBracket: ')',
+    openParenthesis: '(',
+    closedParenthesis: ')',
 }

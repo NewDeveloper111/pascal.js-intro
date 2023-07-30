@@ -87,11 +87,11 @@ export class LexicalAnalyzer
 
                 case '(':
                     this.char = this.fileIO.nextCh();
-                    return this.getSymbol(SymbolsCodes.openBracket);
+                    return this.getSymbol(SymbolsCodes.openParenthesis);
 
                 case ')':
                     this.char = this.fileIO.nextCh();
-                    return this.getSymbol(SymbolsCodes.closedBracket);
+                    return this.getSymbol(SymbolsCodes.closedParenthesis);
             }
         }
         throw `Inadmissible symbol:${this.char}.`;
