@@ -1,9 +1,7 @@
-import { TreeNodeBase } from './TreeNodeBase';
-
-export class Inversion extends TreeNodeBase
+export class Inversion
 {
-    constructor(symbol)
+    constructor(expr)
     {
-        super(symbol);
+        this.expr = expr;
     }
 }

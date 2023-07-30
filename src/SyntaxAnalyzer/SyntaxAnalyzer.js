@@ -3,8 +3,8 @@ import { Division } from './Tree/Division';
 import { Addition } from './Tree/Addition';
 import { Subtraction } from './Tree/Subtraction';
 import { NumberConstant } from './Tree/NumberConstant';
+import { Variable } from './Tree/Variable';
 import { Inversion } from './Tree/Inversion';
-import { Expression } from './Tree/Expression';
 import { Assignation } from './Tree/Assignation';
 import { SymbolsCodes } from '../LexicalAnalyzer/SymbolsCodes';
 
@@ -21,7 +21,6 @@ export class SyntaxAnalyzer
         this.trees = [];
         this.accSym = [];
         this.id = 0;
-        this.strNum = 1;
     }
 
     nextSym()
@@ -55,8 +54,7 @@ export class SyntaxAnalyzer
                 this.accept(SymbolsCodes.endOfLine);
             }
             this.id = 0;
-            this.accSym = [];      
-            this.strNum++;
+            this.accSym = [];
         }
 
         return this.tree;
@@ -138,18 +136,18 @@ export class SyntaxAnalyzer
             this.nextSym();
         }
         let integer = null, intOrVar = this.symbol;
-        if (this.symbol !== null && this.symbol.symbolCode === SymbolsCodes.openBracket) {
+        if (this.symbol !== null && this.symbol.symbolCode === SymbolsCodes.openParenthesis) {
             this.nextSym();
-            integer = new Expression(this.scanExpression());
-            this.accept(SymbolsCodes.closedBracket);
+            integer = this.scanExpression();
+            this.accept(SymbolsCodes.closedParenthesis);
         } else {
             if (intOrVar !== null && intOrVar.symbolCode === SymbolsCodes.identifier) {
-                intOrVar.str = this.strNum;
                 this.nextSym();
+                integer = new Variable(intOrVar);
             } else {
                 this.accept(SymbolsCodes.integerConst);
-            }            
-            integer = new NumberConstant(intOrVar);
+                integer = new NumberConstant(intOrVar);
+            }
         }
         return minus ? new Inversion(integer) : integer;
     }

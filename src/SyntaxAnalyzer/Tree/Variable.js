@@ -1,6 +1,6 @@
 import { TreeNodeBase } from './TreeNodeBase';
 
-export class Expression extends TreeNodeBase
+export class Variable extends TreeNodeBase
 {
     constructor(symbol)
     {

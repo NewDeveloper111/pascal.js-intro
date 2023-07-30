@@ -3,11 +3,10 @@ import { Multiplication } from '../SyntaxAnalyzer/Tree/Multiplication';
 import { Subtraction } from '../SyntaxAnalyzer/Tree/Subtraction';
 import { Division } from '../SyntaxAnalyzer/Tree/Division';
 import { NumberConstant } from '../SyntaxAnalyzer/Tree/NumberConstant';
+import { Variable } from '../SyntaxAnalyzer/Tree/Variable';
 import { Inversion } from '../SyntaxAnalyzer/Tree/Inversion';
-import { Expression } from '../SyntaxAnalyzer/Tree/Expression';
 import { Assignation } from '../SyntaxAnalyzer/Tree/Assignation';
 import { NumberVariable } from './Variables/NumberVariable';
-import { IntegerConstant } from '../LexicalAnalyzer/Symbols/IntegerConstant';
 
 export class Engine
 {
@@ -88,26 +87,23 @@ export class Engine
 
     evaluateMultiplier(expression)
     {
-        let expr = expression, minus = false;
+        let exp = expression, minus = false, num = null;
         if (expression instanceof Inversion) {
             minus = true;
-            expr = expr.symbol;
+            exp = exp.expr;
         }
-        if (expr instanceof Expression || expr instanceof NumberConstant) {
-            let num = null;
-            if (expr instanceof Expression ) {
-                num = this.evaluateSimpleExpression(expr.symbol).value;
-            } else if (expr.symbol instanceof IntegerConstant) {
-                num = expr.symbol.value;
-            } else if (expr.symbol.value in this.acc) {
-                num = this.acc[expr.symbol.value];
+        if (exp instanceof NumberConstant) {
+            num = exp.symbol.value;
+        } else if (exp instanceof Variable) {
+            if (exp.symbol.value in this.acc) {
+                num = this.acc[exp.symbol.value];
             } else {
                 throw '  Ошибка: переменная не инициализирована.\n' +
-                `Строка: ${expr.symbol.str}, столбец: ${expr.symbol.col}`;
+                `Строка: ${exp.symbol.str}, столбец: ${exp.symbol.col}`;
             }
-            return new NumberVariable(minus ? -num : num);
         } else {
-            throw 'Number Constant expected.';
-        }
+            num = this.evaluateSimpleExpression(exp).value;
+        } 
+        return new NumberVariable(minus ? -num : num);        
     }
 };
