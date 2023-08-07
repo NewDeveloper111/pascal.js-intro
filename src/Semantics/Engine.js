@@ -32,16 +32,22 @@ export class Engine
 
             function(tree)
             {
-                let result = self.evaluateSimpleExpression(tree instanceof Assignation ?
-                    tree.right : tree);
-                console.log(result.value);
-                if (tree instanceof Assignation) {
-                    self.acc[tree.left.value] = Number.parseInt(result.value);
-                }
-                self.results.push(Number.parseInt(result.value)); // пишем в массив результатов
+                self.evaluateResult(tree);
             }
         );
 
+    }
+
+    evaluateResult(tree) {
+        let num = null;
+        if (tree instanceof Assignation) {
+            num = this.evaluateResult(tree.right);
+            this.acc[tree.left.value] = Number.parseInt(num);
+        } else {
+            num = this.evaluateSimpleExpression(tree).value;
+            this.results.push(Number.parseInt(num));
+        }
+        return num;
     }
 
     evaluateSimpleExpression(expression)

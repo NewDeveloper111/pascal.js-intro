@@ -69,7 +69,7 @@ export class SyntaxAnalyzer
             if (this.symbol !== null && this.symbol.symbolCode === SymbolsCodes.equal) {
                 this.id = 2;
                 this.nextSym();
-                return new Assignation(this.accSym[1], this.accSym[0], this.scanExpression());
+                return new Assignation(this.accSym.pop(), this.accSym.pop(), this.scanResult());
             }
             this.symbol = this.accSym[0];
         }
